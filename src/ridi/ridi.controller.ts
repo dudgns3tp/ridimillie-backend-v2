@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { RidiService } from './ridi.service';
 import { CreateRidiDto } from './dto/create-ridi.dto';
 import { UpdateRidiDto } from './dto/update-ridi.dto';
