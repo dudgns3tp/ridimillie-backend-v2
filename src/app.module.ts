@@ -8,7 +8,7 @@ import { BooksModule } from './books/books.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.development.env',
+      envFilePath: 'env/.development.env',
     }),
     BooksModule,
   ],

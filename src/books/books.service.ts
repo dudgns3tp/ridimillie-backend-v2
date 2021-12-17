@@ -1,10 +1,13 @@
 import axios from 'axios';
 import { Injectable } from '@nestjs/common';
+import * as _ from 'lodash';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class BooksService {
+  constructor(private configService: ConfigService) {}
   create(createBookDto: CreateBookDto) {
     return 'This action adds a new book';
   }
@@ -27,36 +30,34 @@ export class BooksService {
 
   async searchNaverApi(start, query) {
     const result = await this.requestNaverApi(start, query);
+    //_.chain(result).map()
     return result;
   }
 
   requestNaverApi(start, query) {
-    console.log(process.env.NAVER_CLIENT_ID);
+    const clientId = this.configService.get<string>('naverClientId');
+    const clientSecret = this.configService.get<string>('naverClientSecret');
+
     const api_url =
       'https://openapi.naver.com/v1/search/book.json?query=' +
       encodeURI(query) +
       '&start=' +
       start;
 
-    axios
+    return axios
       .get(api_url, {
         headers: {
-          'X-Naver-Client-Id': process.env.NAVER_CLIENT_ID,
-          'X-Naver-Client-Secret': process.env.NAVER_CLIENT_SECRET,
+          'X-Naver-Client-Id': clientId,
+          'X-Naver-Client-Secret': clientSecret,
         },
       })
       .then((response) => {
         console.log(response);
-        if (response.status == 200) return JSON.parse(response.data).items;
+        if (response.status == 200) return response.data.items;
+        return response.status;
+      })
+      .catch((err) => {
+        return err;
       });
-
-    // request.get(options, function (error, response, body) {
-    //   if (!error && response.statusCode == 200) {
-    //     const result = JSON.parse(body).items;
-    //     resolve(result);
-    //   } else {
-    //     reject(response.statusCode);
-    //   }
-    // });
   }
 }
