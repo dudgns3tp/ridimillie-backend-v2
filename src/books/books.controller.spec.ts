@@ -1,3 +1,4 @@
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { BooksController } from './books.controller';
 import { BooksService } from './books.service';
@@ -9,6 +10,7 @@ describe('BooksController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BooksController],
       providers: [BooksService],
+      imports: [ConfigModule, ConfigService],
     }).compile();
 
     controller = module.get<BooksController>(BooksController);
