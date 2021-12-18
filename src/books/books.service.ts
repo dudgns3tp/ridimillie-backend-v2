@@ -1,16 +1,12 @@
 import axios from 'axios';
 import { Injectable } from '@nestjs/common';
 import * as _ from 'lodash';
-import { CreateBookDto } from './dto/create-book.dto';
-import { UpdateBookDto } from './dto/update-book.dto';
 import { ConfigService } from '@nestjs/config';
+import { NaverApiBookDto } from './dto/naverAPI-book.dto';
 
 @Injectable()
 export class BooksService {
   constructor(private configService: ConfigService) {}
-  create(createBookDto: CreateBookDto) {
-    return 'This action adds a new book';
-  }
 
   findAll() {
     return `This action returns all books`;
@@ -20,18 +16,27 @@ export class BooksService {
     return `This action returns a #${id} book`;
   }
 
-  update(id: number, updateBookDto: UpdateBookDto) {
-    return `This action updates a #${id} book`;
-  }
-
   remove(id: number) {
     return `This action removes a #${id} book`;
   }
 
   async searchNaverApi(start, query) {
-    const result = await this.requestNaverApi(start, query);
-    //_.chain(result).map()
-    return result;
+    return this.requestNaverApi(start, query).then(books => {
+      return _.chain(books)
+        .map(book => {
+          return new NaverApiBookDto(
+            NaverApiBookDto.getBid(book.link),
+            NaverApiBookDto.parseBookTitle(book.title),
+            book.author,
+            book.publisher,
+            NaverApiBookDto.parseBookDescription(book.description),
+            book.image,
+            book.isbn,
+            book.pubdate,
+          );
+        })
+        .value();
+    });
   }
 
   requestNaverApi(start, query) {
@@ -51,12 +56,11 @@ export class BooksService {
           'X-Naver-Client-Secret': clientSecret,
         },
       })
-      .then((response) => {
-        console.log(response);
+      .then(response => {
         if (response.status == 200) return response.data.items;
         return response.status;
       })
-      .catch((err) => {
+      .catch(err => {
         return err;
       });
   }
